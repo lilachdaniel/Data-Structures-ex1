@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 public class Tester {
     public static void main(String[] args){
         AVLTree tree = new AVLTree();
@@ -28,13 +30,27 @@ public class Tester {
 //        if (tree.size() != sizeBefore)
 //            System.out.println("Error in insert - inserted a duplicate");
 
+        //left then right rotation
+        AVLTree tree4 = new AVLTree();
+        tree4.insert(9,true);
+        tree4.insert(7,true);
+        tree4.insert(8,true);
+        display(tree4);
+
         // Tests for keysToArray (mainly tests maintenance of successor/predecessor)
         AVLTree tree2 = new AVLTree();
-        for (int i = 19; i >= 0; i--) {
+        for (int i = 0; i < 10; i++) {
             tree2.insert(i, true);
+            int[] keysArr = tree2.keysToArray();
+            System.out.println(Arrays. toString(keysArr));
+            tree2.insert(19-i, true);
+            keysArr = tree2.keysToArray();
+            System.out.println(Arrays. toString(keysArr));
         }
+        display(tree2);
         int[] keysArr = tree2.keysToArray();
         for (int i = 0; i < keysArr.length; i++) {
+            System.out.print(keysArr[i]+ " ");
             if (keysArr[i] != i)
                 System.out.println("ERROR - avltree.keysToArray (or successor/predecessor maintenance)");
         }

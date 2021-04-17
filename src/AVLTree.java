@@ -101,6 +101,9 @@ public class AVLTree {
             //update successor/predecessor
             newNode.setPredecessor(prev.getPredecessor());
             newNode.setSuccessor(prev);
+            if (prev.getPredecessor()!=null) {
+                prev.getPredecessor().setSuccessor(newNode);
+            }
             prev.setPredecessor(newNode);
         }
         else{
@@ -109,6 +112,9 @@ public class AVLTree {
             //update successor/predecessor
             newNode.setPredecessor(prev);
             newNode.setSuccessor(prev.getSuccessor());
+            if (prev.getSuccessor()!=null) {
+                prev.getSuccessor().setPredecessor(newNode);
+            }
             prev.setSuccessor(newNode);
         }
 
@@ -196,7 +202,8 @@ public class AVLTree {
         crim.setHeight(Math.max(crim.getLeft().getHeight(),crim.getRight().getHeight())+1);
     }
     private void leftRightRotation(AVLNode crim){
-        return;
+        leftRotation(crim.getLeft());
+        rightRotation(crim);
     }
     private void rightRotation(AVLNode crim){
         AVLNode crimP = crim.getParent();
@@ -225,7 +232,8 @@ public class AVLTree {
         crim.setHeight(Math.max(crim.getLeft().getHeight(),crim.getRight().getHeight())+1);
     }
     private void rightLeftRotation(AVLNode crim){
-        return;
+        rightRotation(crim.getRight());
+        leftRotation(crim);
     }
 
     /**
