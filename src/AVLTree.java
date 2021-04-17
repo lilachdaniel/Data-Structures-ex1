@@ -77,45 +77,24 @@ public class AVLTree {
             return 0;
         }
 
-        //find location to insert (or check if key already exists)
-        AVLNode curr = root;
-        AVLNode prev = null;
-        while (curr.isRealNode()){
-            prev = curr;
-            if (curr.getKey()==k){//key already exists
-                return -1;
-            }
-            else if (k>curr.getKey()){//go right
-                curr = curr.getRight();
-            }
-            else{//go left
-                curr = curr.getLeft();
-            }
+        //find location to insert (or check if key already exists), and save its parent in 'prev'
+        AVLNode prev = findLocation(root, k);
+        if (prev.getKey() == k){ //key already exists
+            return -1;
         }
+        AVLNode curr = k > prev.getKey() ? prev.getRight() : prev.getLeft();
 
         //insert new node
         AVLNode newNode= new AVLNode(k,i,0,null,null,i,new AVLNode(), new AVLNode(),prev);
         if (prev.getLeft() == curr){
             prev.setLeft(newNode);
 
-            //update successor/predecessor
-            newNode.setPredecessor(prev.getPredecessor());
-            newNode.setSuccessor(prev);
-            if (prev.getPredecessor()!=null) {
-                prev.getPredecessor().setSuccessor(newNode);
-            }
-            prev.setPredecessor(newNode);
+            updateSuccPred(prev.getPredecessor(), newNode, prev);
         }
-        else{
+        else {
             prev.setRight(newNode);
 
-            //update successor/predecessor
-            newNode.setPredecessor(prev);
-            newNode.setSuccessor(prev.getSuccessor());
-            if (prev.getSuccessor()!=null) {
-                prev.getSuccessor().setPredecessor(newNode);
-            }
-            prev.setSuccessor(newNode);
+            updateSuccPred(prev, newNode, prev.getSuccessor());
         }
 
         //maintaining size,min and max
@@ -128,40 +107,70 @@ public class AVLTree {
         }
 
         //fixing after insertion
-        while (prev!=null){
-            //if |BF|<2, check height and decide to go up or terminate
-            if (Math.abs(prev.getBF())<2){
-                int expectedHeight = Math.max(prev.getLeft().getHeight(),prev.getRight().getHeight())+1;
-                if (prev.getHeight() == expectedHeight){
-                    break;
-                }
-                else{//go up
-                    prev.setHeight(expectedHeight);
-                    prev = prev.getParent();
-                    continue;
-                }
+        return rebalanceTree(prev);
+    }
+
+    // returns the location where a node with key 'k' should be inserted,
+    // by returning the node it should be inserted under.
+    // if key already exists, returns the node where it exists
+    private AVLNode findLocation(AVLNode root, int k){
+        AVLNode curr = root;
+        AVLNode prev = null;
+        while (curr.isRealNode()){
+            prev = curr;
+            if (curr.getKey()==k){//key already exists
+                return curr;
+            }
+            else if (k>curr.getKey()){//go right
+                curr = curr.getRight();
+            }
+            else{//go left
+                curr = curr.getLeft();
+            }
+        }
+        return prev;
+    }
+
+    private void updateSuccPred(AVLNode newNodePred, AVLNode newNode, AVLNode newNodeSucc) {
+        newNode.setSuccessor(newNodeSucc);
+        newNode.setPredecessor(newNodePred);
+        if (newNodePred!=null){
+            newNodePred.setSuccessor(newNode);
+        }
+        if (newNodeSucc!=null){
+            newNodeSucc.setPredecessor(newNode);
+        }
+    }
+
+    private int rebalanceTree(AVLNode parNewNode){
+        while (parNewNode!=null){
+            //if |BF|<2, maintain height and allxor
+            if (Math.abs(parNewNode.getBF())<2){
+                parNewNode.setHeight(Math.max(parNewNode.getLeft().getHeight(),parNewNode.getRight().getHeight())+1);
+                parNewNode.setAllXor(parNewNode.getLeft().getAllXor() ^ parNewNode.getRight().getAllXor() ^ parNewNode.getValue());
             }
             else{ //|BF|=2 -> found a criminal
-                if (prev.getBF()<0){
-                    if (prev.getRight().getBF()<0){
-                        leftRotation(prev);
+                if (parNewNode.getBF()<0){
+                    if (parNewNode.getRight().getBF()<0){
+                        leftRotation(parNewNode);
                     }
                     else{
-                        rightLeftRotation(prev);
+                        rightLeftRotation(parNewNode);
                     }
                 }
                 else{
-                    if (prev.getLeft().getBF()>0){
-                        rightRotation(prev);
+                    if (parNewNode.getLeft().getBF()>0){
+                        rightRotation(parNewNode);
                     }
                     else{
-                        leftRightRotation(prev);
+                        leftRightRotation(parNewNode);
                     }
                 }
-                return 1;//change!!!
             }
+
+            parNewNode = parNewNode.getParent();
         }
-        return 42;    // change!!!
+        return 42; //change!!!
     }
 
     /**
@@ -199,7 +208,16 @@ public class AVLTree {
         crimR.getLeft().setParent(crim);
         crimR.setLeft(crim);
 
+        // maintaining the height of the criminal and its parent
         crim.setHeight(Math.max(crim.getLeft().getHeight(),crim.getRight().getHeight())+1);
+
+        AVLNode currentCrimParent = crim.getParent();
+        currentCrimParent.setHeight(Math.max(currentCrimParent.getLeft().getHeight(),
+                                             currentCrimParent.getRight().getHeight()) + 1);
+
+        // maintaining the allXor of the Crim and crimR
+        crim.setAllXor(crim.getLeft().getAllXor()  ^ crim.getRight().getAllXor()  ^ crim.getValue());
+        crimR.setAllXor(crimR.getLeft().getAllXor() ^ crimR.getRight().getAllXor() ^ crimR.getValue());
     }
     private void leftRightRotation(AVLNode crim){
         leftRotation(crim.getLeft());
@@ -229,7 +247,16 @@ public class AVLTree {
         crimL.getRight().setParent(crim);
         crimL.setRight(crim);
 
+        // maintaining height of criminal and its parent
         crim.setHeight(Math.max(crim.getLeft().getHeight(),crim.getRight().getHeight())+1);
+
+        AVLNode currentCrimParent = crim.getParent();
+        currentCrimParent.setHeight(Math.max(currentCrimParent.getLeft().getHeight(),
+                                             currentCrimParent.getRight().getHeight()) + 1);
+
+        // maintaining the allXor of crim and crimL
+        crim.setAllXor( crim.getLeft().getAllXor()  ^ crim.getRight().getAllXor()  ^ crim.getValue());
+        crimL.setAllXor(crimL.getLeft().getAllXor() ^ crimL.getRight().getAllXor() ^ crimL.getValue());
     }
     private void rightLeftRotation(AVLNode crim){
         rightRotation(crim.getRight());
@@ -272,6 +299,9 @@ public class AVLTree {
      */
     public int[] keysToArray() {
         int[] arr = new int[this.size()];
+        if (this.size() == 0) {
+            return arr;
+        }
 
         AVLNode currNode = this.min;
         for (int i = 0; currNode != null; i++) {
@@ -291,6 +321,9 @@ public class AVLTree {
      */
     public boolean[] infoToArray() {
         boolean[] arr = new boolean[this.size()];
+        if (this.size() == 0) {
+            return arr;
+        }
 
         AVLNode currNode = this.min;
         for (int i = 0; currNode != null; i++) {
@@ -320,7 +353,7 @@ public class AVLTree {
     }
 
     /**
-     * public boolean prefixXor(int k)
+     * public boolean allXor(int k)
      *
      * Given an argument k which is a key in the tree, calculate the xor of the values of nodes whose keys are
      * smaller or equal to k.
@@ -329,6 +362,24 @@ public class AVLTree {
      *
      */
     public boolean prefixXor(int k){
+        boolean result = false;
+        AVLNode curr = this.getRoot();
+
+        while (curr.isRealNode()){
+            if (curr.getKey()==k) { //key found
+                return result ^ curr.getLeft().getAllXor() ^ curr.getValue();
+            }
+            else if (k>curr.getKey()) { //go right
+                result = result ^ curr.getLeft().getAllXor() ^ curr.getValue();
+                curr = curr.getRight();
+            }
+            else { //go left
+                curr = curr.getLeft();
+            }
+        }
+
+        // should not get here
+        System.out.println("Used allXor with a key that is not in the tree!!!");  // ************* remove me **************
         return false;
     }
 
@@ -347,14 +398,26 @@ public class AVLTree {
     /**
      * public boolean succPrefixXor(int k)
      *
-     * This function is identical to prefixXor(int k) in terms of input/output. However, the implementation of
+     * This function is identical to allXor(int k) in terms of input/output. However, the implementation of
      * succPrefixXor should be the following: starting from the minimum-key node, iteratively call successor until
      * you reach the node of key k. Return the xor of all visited nodes.
      *
      * precondition: this.search(k) != null
      */
     public boolean succPrefixXor(int k){
-        return false;
+        if (this.empty()) {
+            return false;
+        }
+
+        boolean result = false;
+
+        AVLNode curr = this.min;
+        while (curr.getKey() != k) {
+            result = result ^ curr.getValue();
+            curr = this.successor(curr);
+        }
+
+        return result ^ curr.getValue();
     }
 
 
@@ -375,18 +438,18 @@ public class AVLTree {
         private int height;
         private AVLNode successor;
         private AVLNode predecessor;
-        private boolean prefixXor;
+        private boolean allXor;
         private AVLNode left;
         private AVLNode right;
         private AVLNode parent;
 
-        private AVLNode(int key, boolean info, int height, AVLNode successor, AVLNode predecessor, boolean prefixXor, AVLNode left, AVLNode right, AVLNode parent){
+        private AVLNode(int key, boolean info, int height, AVLNode successor, AVLNode predecessor, boolean allXor, AVLNode left, AVLNode right, AVLNode parent){
             this.key = key;
             this.info = info;
             this.height = height;
             this.successor = successor;
             this.predecessor = predecessor;
-            this.prefixXor = prefixXor;
+            this.allXor = allXor;
             this.left = left;
             this.right = right;
             this.parent = parent;
@@ -464,11 +527,11 @@ public class AVLTree {
             return this.height;
         }
 
-        private int getBF(){
+        public int getBF(){
             return this.left.getHeight() - this.right.getHeight();
-        }
+        } //change to private!!!!!!!
 
-        private AVLNode getSuccessor(){
+        public AVLNode getSuccessor(){ // change to private!!!!!!!
             return this.successor;
         }
 
@@ -476,12 +539,20 @@ public class AVLTree {
             this.successor = successor;
         }
 
-        private AVLNode getPredecessor(){
+        public AVLNode getPredecessor(){ // change to private!!!!!!!!
             return this.predecessor;
         }
 
         private void setPredecessor(AVLNode predecessor){
             this.predecessor = predecessor;
+        }
+
+        public boolean getAllXor() { // change to private!!!!!!!
+            return this.allXor;
+        }
+
+        private void setAllXor(boolean allXor) {
+            this.allXor = allXor;
         }
 
     }

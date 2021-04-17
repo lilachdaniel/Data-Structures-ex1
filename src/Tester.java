@@ -1,24 +1,23 @@
-import java.util.Arrays;
-
 public class Tester {
     public static void main(String[] args){
         AVLTree tree = new AVLTree();
         // display(tree);
 //        tree.insert(6,true);
-//        tree.insert(7,true);
-//        tree.insert(8,true);
+//        tree.insert(7,false);
+//        tree.insert(8,false);
 //        tree.insert(9,true);
 //        tree.insert(10,true);
-//        tree.insert(11,true);
+//        tree.insert(11,false);
 //        display(tree);
-
+//
 //        for (int i = 1 ; i < 20 ; i++){
 //            tree.insert(i, true);
 //            display(tree);
 //            System.out.println("size:" + tree.size() + "\tmin:" + tree.min.getKey() +
 //                               "\tmax:" + tree.max.getKey());
 //        }
-
+//
+//        tree = new AVLTree();
 //        for (int i = 20 ; i>1 ; i--){
 //            tree.insert(i, true);
 //            display(tree);
@@ -30,41 +29,41 @@ public class Tester {
 //        if (tree.size() != sizeBefore)
 //            System.out.println("Error in insert - inserted a duplicate");
 
-        //left then right rotation
-        AVLTree tree4 = new AVLTree();
-        tree4.insert(9,true);
-        tree4.insert(7,true);
-        tree4.insert(8,true);
-        display(tree4);
-
-        // Tests for keysToArray (mainly tests maintenance of successor/predecessor)
-        AVLTree tree2 = new AVLTree();
-        for (int i = 0; i < 10; i++) {
-            tree2.insert(i, true);
-            int[] keysArr = tree2.keysToArray();
-            System.out.println(Arrays. toString(keysArr));
-            tree2.insert(19-i, true);
-            keysArr = tree2.keysToArray();
-            System.out.println(Arrays. toString(keysArr));
-        }
-        display(tree2);
-        int[] keysArr = tree2.keysToArray();
-        for (int i = 0; i < keysArr.length; i++) {
-            System.out.print(keysArr[i]+ " ");
-            if (keysArr[i] != i)
-                System.out.println("ERROR - avltree.keysToArray (or successor/predecessor maintenance)");
-        }
-
-        // Tests for infoToArray (mainly tests maintenance of successor/predecessor)
-        AVLTree tree3 = new AVLTree();
-        for (int i = 0; i < 20; i++) {
-            tree3.insert(i, (i % 2 == 0));
-        }
-        boolean[] infoArr = tree3.infoToArray();
-        for (int i = 0; i < infoArr.length; i++) {
-            if (infoArr[i] != (i % 2 == 0))
-                System.out.println("ERROR - avltree.infoToArray (or successor/predecessor maintenance)");
-        }
+//        //left then right rotation
+//        AVLTree tree4 = new AVLTree();
+//        tree4.insert(9,true);
+//        tree4.insert(7,true);
+//        tree4.insert(8,true);
+//        display(tree4);
+//
+//        // Tests for keysToArray (mainly tests maintenance of successor/predecessor)
+//        AVLTree tree2 = new AVLTree();
+//        for (int i = 0; i < 10; i++) {
+//            tree2.insert(i, true);
+//            int[] keysArr = tree2.keysToArray();
+//            System.out.println(Arrays. toString(keysArr));
+//            tree2.insert(19-i, true);
+//            keysArr = tree2.keysToArray();
+//            System.out.println(Arrays. toString(keysArr));
+//        }
+//        display(tree2);
+//        int[] keysArr = tree2.keysToArray();
+//        for (int i = 0; i < keysArr.length; i++) {
+//            System.out.print(keysArr[i]+ " ");
+//            if (keysArr[i] != i)
+//                System.out.println("ERROR - avltree.keysToArray (or successor/predecessor maintenance)");
+//        }
+//
+//        // Tests for infoToArray (mainly tests maintenance of successor/predecessor)
+//        AVLTree tree3 = new AVLTree();
+//        for (int i = 0; i < 20; i++) {
+//            tree3.insert(i, (i % 2 == 0));
+//        }
+//        boolean[] infoArr = tree3.infoToArray();
+//        for (int i = 0; i < infoArr.length; i++) {
+//            if (infoArr[i] != (i % 2 == 0))
+//                System.out.println("ERROR - avltree.infoToArray (or successor/predecessor maintenance)");
+//        }
 
 
         // Tests for search
@@ -79,9 +78,18 @@ public class Tester {
 //        if (tree1.search(5) == null)
 //            System.out.println("ERROR - avltree.search (regular tree)");
 
+        AVLTree tree5 = new AVLTree();
+        tree5.insert(1, true);
+        display(tree5);
+        tree5.insert(2, false);
+        display(tree5);
+        tree5.insert(0, true);
+        display(tree5);
+
     }
     public static void display(AVLTree tree) {
-        final int height = 5, width = 64;
+        // final int height = 5, width = 64;
+        final int height = 10, width = 128;
 
         int len = width * height * 2 + 2;
         StringBuilder sb = new StringBuilder(len);
@@ -97,7 +105,7 @@ public class Tester {
         if (n.isRealNode()) {
             displayR(sb, c - d, r + 2, d / 2, w, n.getLeft(), " /");
 
-            String s = String.valueOf(n.getKey()) + "," + String.valueOf(n.getHeight());
+            String s = String.valueOf(n.getAllXor()) + "," + String.valueOf(n.getKey()) + "," + String.valueOf(n.getValue());
             int idx1 = r * w + c - (s.length() + 1) / 2;
             int idx2 = idx1 + s.length();
             int idx3 = idx1 - w;
