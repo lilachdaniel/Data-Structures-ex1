@@ -107,7 +107,7 @@ public class AVLTree {
         }
 
         //fixing after insertion
-        return rebalanceTree(prev);
+        return rebalanceTree(prev, false);
     }
 
     // returns the location where a node with key 'k' should be inserted,
@@ -142,7 +142,7 @@ public class AVLTree {
         }
     }
 
-    private int rebalanceTree(AVLNode parNewNode){
+    private int rebalanceTree(AVLNode parNewNode, boolean isDelete){
         while (parNewNode!=null){
             //if |BF|<2, maintain height and allxor
             if (Math.abs(parNewNode.getBF())<2){
@@ -151,7 +151,7 @@ public class AVLTree {
             }
             else{ //|BF|=2 -> found a criminal
                 if (parNewNode.getBF()<0){
-                    if (parNewNode.getRight().getBF()<0){
+                    if (parNewNode.getRight().getBF()<0 || (isDelete && parNewNode.getRight().getBF()==0)){
                         leftRotation(parNewNode);
                     }
                     else{
@@ -159,7 +159,7 @@ public class AVLTree {
                     }
                 }
                 else{
-                    if (parNewNode.getLeft().getBF()>0){
+                    if (parNewNode.getLeft().getBF()>0 || (isDelete && parNewNode.getLeft().getBF()==0)){
                         rightRotation(parNewNode);
                     }
                     else{
@@ -182,7 +182,135 @@ public class AVLTree {
      * returns -1 if an item with key k was not found in the tree.
      */
     public int delete(int k) {
-        return 42;    // to be replaced by student code
+        // search for the node to remove
+        AVLNode toDelete = this.findLocation(this.getRoot(), k);
+        if (toDelete == null || toDelete.getKey() != k) {
+            return -1;
+        }
+
+        // removal of the node
+        AVLNode firstToRebalance = actualDelete(toDelete);
+
+
+        // maintaining AVLTree's fields
+        this.size--;
+        if (this.empty()) {
+            this.min = root;
+            this.max = root;
+        }
+        else {
+            if (this.min == toDelete) {
+                this.min = toDelete.getSuccessor();
+            }
+            if (this.max == toDelete) {
+                this.max = toDelete.getPredecessor();
+            }
+        }
+
+        // maintain successor/predecessor in toDelete's wn successor and predecessor
+        if (toDelete.getSuccessor() != null) {
+            toDelete.getSuccessor().setPredecessor(toDelete.getPredecessor());
+        }
+        if (toDelete.getPredecessor() != null) {
+            toDelete.getPredecessor().setSuccessor(toDelete.getSuccessor());
+        }
+
+        // rebalance tree
+        return rebalanceTree(firstToRebalance, true);
+    }
+
+    // receives the node to disconnect from the tree,
+    // returns the first node in the rebalancing chain
+    private AVLNode actualDelete(AVLNode toDelete) {
+        // remove the node according to the right case
+        AVLNode toDeleteParent = toDelete.getParent();
+        AVLNode firstToRebalance;
+
+        // if has one child at most
+        if (!toDelete.getLeft().isRealNode() || !toDelete.getRight().isRealNode()) {
+            AVLNode newChild;
+
+            // determine the replacement of toDelete, according to specific case
+            if (toDelete.getLeft().isRealNode()) { // bypass
+                newChild = toDelete.getLeft();
+            }
+            else if (toDelete.getRight().isRealNode()) { // bypass
+                newChild = toDelete.getRight();
+            }
+            else { // is leaf
+                newChild = new AVLNode();
+            }
+
+            // link newChild to toDelete's parent , or update root if toDelete is root
+            if (this.getRoot() == toDelete) {
+                this.root = newChild;
+                this.root.parent = null;
+            }
+            else {
+                if (newChild.isRealNode()) {
+                    newChild.setParent(toDeleteParent);
+                }
+
+                if (toDeleteParent.getRight() == toDelete) {
+                    toDeleteParent.setRight(newChild);
+                } else {
+                    toDeleteParent.setLeft(newChild);
+                }
+            }
+
+            // determine what node will be the first to rebalance
+            firstToRebalance = toDeleteParent;
+        }
+        else { // has two real children
+            // bypass toDelete's successor
+            AVLNode toDeleteSucc = toDelete.getSuccessor();
+            AVLNode succParent = toDeleteSucc.getParent();
+
+            if (succParent.getRight() == toDeleteSucc) {
+                succParent.setRight(toDeleteSucc.getRight());
+            }
+            else {
+                succParent.setLeft(toDeleteSucc.getRight());
+            }
+
+            toDeleteSucc.getRight().setParent(succParent);
+
+
+            // replace toDelete with toDeleteSucc
+            // link toDelete's right chid with tDeeteSucc
+            toDeleteSucc.setRight(toDelete.getRight());
+            toDelete.getRight().setParent(toDeleteSucc);
+
+            // link toDelete's left chid with tDeeteSucc
+            toDeleteSucc.setLeft(toDelete.getLeft());
+            toDelete.getLeft().setParent(toDeleteSucc);
+
+            // link toDelete's parent with tDeeteSucc
+            toDeleteSucc.setParent(toDelete.getParent());
+            if (toDeleteParent != null) {
+                if (toDeleteParent.getLeft() == toDelete) {
+                    toDeleteParent.setLeft(toDeleteSucc);
+                } else {
+                    toDeleteParent.setRight(toDeleteSucc);
+                }
+            }
+
+            // if deleted the root, update root field
+            if (this.getRoot() == toDelete) {
+                this.root = toDeleteSucc;
+                this.root.parent = null;
+            }
+
+            // determine where to start rebalance
+            if (succParent == toDelete) {
+                firstToRebalance = toDeleteSucc;
+            }
+            else {
+                firstToRebalance = succParent;
+            }
+        }
+
+        return firstToRebalance;
     }
 
     private void leftRotation(AVLNode crim){

@@ -79,17 +79,63 @@ public class Tester {
 //            System.out.println("ERROR - avltree.search (regular tree)");
 
         AVLTree tree5 = new AVLTree();
-        tree5.insert(1, true);
-        display(tree5);
-        tree5.insert(2, false);
-        display(tree5);
-        tree5.insert(0, true);
-        display(tree5);
+
+//        tree5.delete(7);
+//        System.out.println("Empty tree data: min=" + tree5.min.getKey() + ", max=" + tree5.max.getKey() +
+//                           ", root=" + tree5.getRoot().getKey() + ", size=" + tree5.size());
+//
+//        tree5.insert(8, true);
+//        display(tree5);
+//        System.out.println("Only eight data: min=" + tree5.min.getKey() + ", max=" + tree5.max.getKey() +
+//                ", root=" + tree5.getRoot().getKey() + ", size=" + tree5.size());
+//
+//        tree5.delete(8);
+//        display(tree5);
+//        System.out.println("Empty tree data: min=" + tree5.min.getKey() + ", max=" + tree5.max.getKey() +
+//                ", root=" + tree5.getRoot().getKey() + ", size=" + tree5.size());
+//
+
+//        tree5.insert(10, true);
+//        tree5.insert(5, true);
+//        display(tree5);
+//        System.out.println("min=" + tree5.min.getKey() + ", max=" + tree5.max.getKey() +
+//                           ", root=" + tree5.getRoot().getKey() + ", size=" + tree5.size());
+//
+//        tree5.delete(5);
+//        display(tree5);
+//        System.out.println("min=" + tree5.min.getKey() + ", max=" + tree5.max.getKey() +
+//                ", root=" + tree5.getRoot().getKey() + ", size=" + tree5.size());
+//
+//        tree5.insert(5, true);
+//        display(tree5);
+//        System.out.println("min=" + tree5.min.getKey() + ", max=" + tree5.max.getKey() +
+//                ", root=" + tree5.getRoot().getKey() + ", size=" + tree5.size());
+//
+//        tree5.insert(15, true);
+//        display(tree5);
+//        System.out.println("min=" + tree5.min.getKey() + ", max=" + tree5.max.getKey() +
+//                           ", root=" + tree5.getRoot().getKey() + ", size=" + tree5.size());
+//
+//        tree5.delete(10);
+//        display(tree5);
+//        System.out.println("min=" + tree5.min.getKey() + ", max=" + tree5.max.getKey() +
+//                           ", root=" + tree5.getRoot().getKey() + ", size=" + tree5.size());
+//
+//        tree5.delete(15);
+//        display(tree5);
+//        System.out.println("min=" + tree5.min.getKey() + ", max=" + tree5.max.getKey() +
+//                ", root=" + tree5.getRoot().getKey() + ", size=" + tree5.size());
+
+//        tree5.insert(1, false);
+//        tree5.insert(2, false);
+//        tree5.insert(0, true);
+//        tree5.delete(1);
+//        System.out.println(RandomizedTester.checkParents(tree5));
 
     }
     public static void display(AVLTree tree) {
-        // final int height = 5, width = 64;
-        final int height = 10, width = 128;
+        final int height = 4, width = 64;
+        // final int height = 10, width = 128;
 
         int len = width * height * 2 + 2;
         StringBuilder sb = new StringBuilder(len);

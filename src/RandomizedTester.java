@@ -4,12 +4,14 @@ import java.util.List;
 
 public class RandomizedTester {
     public static void main(String[] args) {
-        randomTests(1000, 30);
+        randomTests(1000, 50);
     }
 
     public static void randomTests(int n, int maxTreeSize) {
         int i;
         for (i = 0; i < n; i++) {
+            String actions = "";
+
             AVLTree tree = new AVLTree();
 
             int treeSize = (int)(Math.random() * maxTreeSize);
@@ -17,64 +19,95 @@ public class RandomizedTester {
             List<Integer> keysList = new ArrayList<>();
 
             for (int k = 0; k < treeSize; k++) {
-                int key = (int)(Math.random() * treeSize);
-                boolean value = (Math.random() >= 0.5);
+                // randomly device if insert or delete
+                if (Math.random() >= 0.3) {
+                    // insert to tree
+                    int key = (int)(Math.random() * treeSize);
+                    boolean value = (Math.random() >= 0.5);
 
-                if (tree.insert(key, value) != -1) {
-                    keysList.add(key);
+                    if (tree.insert(key, value) != -1) {
+                        keysList.add(key);
+                    }
+
+                    actions += "inserted " + key + "," + value + "\n";
                 }
+                else {
+                    // delete from tree
+                    int key = (int)(Math.random() * treeSize);
+                    tree.delete(key);
+                    if (keysList.contains(key)) {
+                        int indexToRemove = keysList.indexOf(key);
+                        keysList.remove(indexToRemove);
+                    }
+
+                    actions += "deleted " + key + "\n";
+                }
+
             }
 
             int[] keysArr = new int[keysList.size()];
-            for (int k = 0; k < keysList.size(); k++) {
-                keysArr[k] = keysList.get(k);
-            }
-            Arrays.sort(keysArr);
-
             boolean[] infoArr = new boolean[keysList.size()];
-            for (int k = 0; k < keysList.size(); k++) {
-                infoArr[k] = tree.search(keysArr[k]);
+
+            try {
+                for (int k = 0; k < keysList.size(); k++) {
+                    keysArr[k] = keysList.get(k);
+                }
+                Arrays.sort(keysArr);
+
+                for (int k = 0; k < keysList.size(); k++) {
+                    infoArr[k] = tree.search(keysArr[k]);
+                }
+            } catch (Exception e) {
+                System.out.println("asdf");
             }
 
 
             if (checkMin(tree) == false) {
                 Tester.display(tree);
+                System.out.println(actions);
                 System.out.println("Error in checkMin!");
                 break;
             }
 
             if (checkMax(tree) == false) {
                 Tester.display(tree);
+                System.out.println(actions);
                 System.out.println("Error in checkMax!");
+                System.out.println("max points to: " + tree.max.getKey());
                 break;
             }
 
             if (checkSize(tree) == false) {
                 Tester.display(tree);
+                System.out.println(actions);
                 System.out.println("Error in checkSize!");
                 break;
             }
 
             if (checkBalanced(tree) == false) {
                 Tester.display(tree);
+                System.out.println(actions);
                 System.out.println("Error in checkBalanced!");
                 break;
             }
 
             if (checkPredecessor(tree) == false) {
                 Tester.display(tree);
+                System.out.println(actions);
                 System.out.println("Error in checkPredecessor!");
                 break;
             }
 
             if (checkSuccessor(tree) == false) {
                 Tester.display(tree);
+                System.out.println(actions);
                 System.out.println("Error in checkSuccessor!");
                 break;
             }
 
             if (checkKeysToArray(tree, keysArr) == false) {
                 Tester.display(tree);
+                System.out.println(actions);
                 System.out.println(Arrays.toString(keysArr));
                 System.out.println("Error in keysToArray!");
                 break;
@@ -82,6 +115,7 @@ public class RandomizedTester {
 
             if (checkInfoToArray(tree, infoArr) == false) {
                 Tester.display(tree);
+                System.out.println(actions);
                 System.out.println(Arrays.toString(infoArr));
                 System.out.println("Error in infoToArray!");
                 break;
@@ -89,24 +123,28 @@ public class RandomizedTester {
 
             if (checkHeight(tree) == false) {
                 Tester.display(tree);
+                System.out.println(actions);
                 System.out.println("Error in checkHeight!");
                 break;
             }
 
             if (checkParents(tree) == false) {
                 Tester.display(tree);
+                System.out.println(actions);
                 System.out.println("Error in checkParents!");
                 break;
             }
 
             if (checkSuccPrefixXor(tree, infoArr) == false) {
                 Tester.display(tree);
+                System.out.println(actions);
                 System.out.println("Error in checkSuccPrefixXor!");
                 break;
             }
 
             if (checkPrefixXor(tree) == false) {
                 Tester.display(tree);
+                System.out.println(actions);
                 System.out.println("Error in checkPrefixXor!");
                 break;
             }
