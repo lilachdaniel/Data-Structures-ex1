@@ -481,7 +481,7 @@ public class AVLTree {
     }
 
     /**
-     * public boolean allXor(int k)
+     * public boolean prefixXor(int k)
      *
      * Given an argument k which is a key in the tree, calculate the xor of the values of nodes whose keys are
      * smaller or equal to k.
