@@ -654,31 +654,38 @@ public class AVLTree {
         public int getHeight() {
             return this.height;
         }
-
+	
+	//Returns the balance factor of the node
         public int getBF(){
             return this.left.getHeight() - this.right.getHeight();
         } //change to private!!!!!!!
-
+	
+	//Returns the node's successor
         public AVLNode getSuccessor(){ // change to private!!!!!!!
             return this.successor;
         }
 
+	//Sets node's successor    
         private void setSuccessor(AVLNode successor){
             this.successor = successor;
         }
 
+	//Returns node's predecessor
         public AVLNode getPredecessor(){ // change to private!!!!!!!!
             return this.predecessor;
         }
 
+	//Sets node's predecessor
         private void setPredecessor(AVLNode predecessor){
             this.predecessor = predecessor;
         }
-
+	
+	//Returns xor value of the node's subtree
         public boolean getAllXor() { // change to private!!!!!!!
             return this.allXor;
         }
-
+	
+	//Sets xor value of the node's subtree
         private void setAllXor(boolean allXor) {
             this.allXor = allXor;
         }
