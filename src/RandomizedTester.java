@@ -4,7 +4,7 @@ import java.util.List;
 
 public class RandomizedTester {
     public static void main(String[] args) {
-        randomTests(1000, 50);
+        randomTests(1000, 1000);
     }
 
     public static void randomTests(int n, int maxTreeSize) {

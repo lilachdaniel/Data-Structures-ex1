@@ -12,9 +12,9 @@
 
 public class AVLTree {
     private AVLNode virtualNode;
-    private AVLNode root;
-    public AVLNode min; //change to private!!!
-    public AVLNode max; //change to private!!!
+    public AVLNode root;
+    public AVLNode min;
+    public AVLNode max;
     private int size;
 
     /**
@@ -34,7 +34,7 @@ public class AVLTree {
      * returns true if and only if the tree is empty
      */
     public boolean empty() {
-        return this.size == 0; // to be replaced by student code
+        return this.size == 0;
     }
 
     /**
@@ -71,7 +71,7 @@ public class AVLTree {
      */
     public int insert(int k, boolean i) {
         //if the tree is empty
-        if (this.empty()){
+        if (this.empty()){ // insert a new node as root
             this.root = new AVLNode(k, i, 0, null, null, i, this.virtualNode, this.virtualNode, null);
             this.min = root;
             this.max = root;
@@ -80,12 +80,10 @@ public class AVLTree {
         }
 
         //find location to insert (or check if key already exists), and save its parent in 'prev'
-        AVLNode prev = findLocation(root, k);
+        AVLNode prev = findLocation(k);
         if (prev.getKey() == k){ //key already exists
             return -1;
         }
-
-        //AVLNode curr = k > prev.getKey() ? prev.getRight() : prev.getLeft(); / ***********  delete later
 
         //insert new node
         AVLNode newNode= new AVLNode(k,i,0,null,null,i,this.virtualNode, this.virtualNode,prev);
@@ -113,11 +111,13 @@ public class AVLTree {
         return rebalanceTree(prev, false);
     }
 
-    // returns the location where a node with key 'k' should be inserted,
-    // by returning the node it should be inserted under.
-    // if key already exists, returns the node where it exists
-    private AVLNode findLocation(AVLNode root, int k){
-        AVLNode curr = root;
+    /**
+     * returns the location where a node with key 'k' should be inserted,
+     * by returning the node it should be inserted under.
+     * if key already exists, returns the node where it exists
+     */
+    private AVLNode findLocation(int k){
+        AVLNode curr = this.root;
         AVLNode prev = null;
         while (curr.isRealNode()){
             prev = curr;
@@ -134,9 +134,15 @@ public class AVLTree {
         return prev;
     }
 
+    /**
+     * receives an inserted node and its predecessor & successor,
+     * and updates their predecessor/successor fields accordingly
+     */
     private void updateSuccPred(AVLNode newNodePred, AVLNode newNode, AVLNode newNodeSucc) {
+        // update the successor/predecessor fields of the new node
         newNode.setSuccessor(newNodeSucc);
         newNode.setPredecessor(newNodePred);
+        // update the successor/predecessor fields of the predecessor/successor
         if (newNodePred!=null){
             newNodePred.setSuccessor(newNode);
         }
@@ -145,6 +151,12 @@ public class AVLTree {
         }
     }
 
+    /**
+     * Rebalances the tree after an insertion/deletion according to
+     * the algorithm taught in the course.
+     * Maintains height and allXor fields,  and balance factor using rotations.
+     * Returns the number of balancing operations.
+     */
     private int rebalanceTree(AVLNode parNewNode, boolean isDelete){
         int actionCount = 0;
 
@@ -158,7 +170,7 @@ public class AVLTree {
                 }
                 parNewNode.setAllXor(parNewNode.getLeft().getAllXor() ^ parNewNode.getRight().getAllXor() ^ parNewNode.getValue());
             }
-            else{ //|BF|=2 -> found a criminal
+            else{ //|BF|=2 -> found a criminal, perform rotation
                 actionCount++;
                 if (parNewNode.getBF()<0){
                     if (parNewNode.getRight().getBF()<0 || (isDelete && parNewNode.getRight().getBF()==0)){
@@ -193,16 +205,16 @@ public class AVLTree {
      */
     public int delete(int k) {
         // search for the node to remove
-        AVLNode toDelete = this.findLocation(this.getRoot(), k);
+        AVLNode toDelete = this.findLocation(k);
         if (toDelete == null || toDelete.getKey() != k) {
             return -1;
         }
 
-        // removal of the node
+        // remove the node, and save its parent for rebalancing
         AVLNode firstToRebalance = actualDelete(toDelete);
 
 
-        // maintaining AVLTree's fields
+        // maintaining AVLTree's size, min, max fields
         this.size--;
         if (this.empty()) {
             this.min = root;
@@ -217,7 +229,7 @@ public class AVLTree {
             }
         }
 
-        // maintain successor/predecessor in toDelete's wn successor and predecessor
+        // maintain successor/predecessor in toDelete's own successor and predecessor
         if (toDelete.getSuccessor() != null) {
             toDelete.getSuccessor().setPredecessor(toDelete.getPredecessor());
         }
@@ -229,10 +241,11 @@ public class AVLTree {
         return rebalanceTree(firstToRebalance, true);
     }
 
-    // receives the node to disconnect from the tree,
-    // returns the first node in the rebalancing chain
+    /**
+     * receives the node to disconnect from the tree,
+     * returns the first node in the rebalancing chain
+     */
     private AVLNode actualDelete(AVLNode toDelete) {
-        // remove the node according to the right case
         AVLNode toDeleteParent = toDelete.getParent();
         AVLNode firstToRebalance;
 
@@ -287,15 +300,15 @@ public class AVLTree {
 
 
             // replace toDelete with toDeleteSucc
-            // link toDelete's right chid with tDeeteSucc
+            // link toDelete's right child with toDeleteSucc
             toDeleteSucc.setRight(toDelete.getRight());
             toDelete.getRight().setParent(toDeleteSucc);
 
-            // link toDelete's left chid with tDeeteSucc
+            // link toDelete's left child with toDeleteSucc
             toDeleteSucc.setLeft(toDelete.getLeft());
             toDelete.getLeft().setParent(toDeleteSucc);
 
-            // link toDelete's parent with tDeeteSucc
+            // link toDelete's parent with toDeleteSucc
             toDeleteSucc.setParent(toDelete.getParent());
             if (toDeleteParent != null) {
                 if (toDeleteParent.getLeft() == toDelete) {
@@ -323,6 +336,9 @@ public class AVLTree {
         return firstToRebalance;
     }
 
+    /**
+     * Performs a left rotation on the given node
+     */
     private void leftRotation(AVLNode crim){
         AVLNode crimP = crim.getParent();
         AVLNode crimR = crim.getRight();
@@ -348,21 +364,29 @@ public class AVLTree {
         }
         crimR.setLeft(crim);
 
-        // maintaining the height of the criminal and its parent
+        // maintaining the height of the criminal
         crim.setHeight(Math.max(crim.getLeft().getHeight(),crim.getRight().getHeight())+1);
 
-        AVLNode currentCrimParent = crim.getParent();
-        currentCrimParent.setHeight(Math.max(currentCrimParent.getLeft().getHeight(),
-                                             currentCrimParent.getRight().getHeight()) + 1);
+        // maintain height of crim's parent, which is now crimR
+        crimR.setHeight(Math.max(crimR.getLeft().getHeight(),
+                                             crimR.getRight().getHeight()) + 1);
 
         // maintaining the allXor of the Crim and crimR
         crim.setAllXor(crim.getLeft().getAllXor()  ^ crim.getRight().getAllXor()  ^ crim.getValue());
         crimR.setAllXor(crimR.getLeft().getAllXor() ^ crimR.getRight().getAllXor() ^ crimR.getValue());
     }
+
+    /**
+     * Performs a left-then-right rotation on the given node
+     */
     private void leftRightRotation(AVLNode crim){
         leftRotation(crim.getLeft());
         rightRotation(crim);
     }
+
+    /**
+     * Performs a right rotation on the given node
+     */
     private void rightRotation(AVLNode crim){
         AVLNode crimP = crim.getParent();
         AVLNode crimL = crim.getLeft();
@@ -389,17 +413,20 @@ public class AVLTree {
         }
         crimL.setRight(crim);
 
-        // maintaining height of criminal and its parent
+        // maintaining height of criminal
         crim.setHeight(Math.max(crim.getLeft().getHeight(),crim.getRight().getHeight())+1);
 
-        AVLNode currentCrimParent = crim.getParent();
-        currentCrimParent.setHeight(Math.max(currentCrimParent.getLeft().getHeight(),
-                                             currentCrimParent.getRight().getHeight()) + 1);
+        // maintain the height of crim's parent, which is now crimL
+        crimL.setHeight(Math.max(crimL.getLeft().getHeight(), crimL.getRight().getHeight()) + 1);
 
         // maintaining the allXor of crim and crimL
         crim.setAllXor( crim.getLeft().getAllXor()  ^ crim.getRight().getAllXor()  ^ crim.getValue());
         crimL.setAllXor(crimL.getLeft().getAllXor() ^ crimL.getRight().getAllXor() ^ crimL.getValue());
     }
+
+    /**
+     * Perform right-then-left rotation on the given node
+     */
     private void rightLeftRotation(AVLNode crim){
         rightRotation(crim.getRight());
         leftRotation(crim);
@@ -430,7 +457,7 @@ public class AVLTree {
             return null;
         }
 
-        return this.min.getValue();
+        return this.max.getValue();
     }
 
     /**
@@ -445,6 +472,8 @@ public class AVLTree {
             return arr;
         }
 
+        // iterating on all nodes by starting from the minimum
+        // and performing getSuccessor after each iteration
         AVLNode currNode = this.min;
         for (int i = 0; currNode != null; i++) {
             arr[i] = currNode.getKey();
@@ -467,6 +496,8 @@ public class AVLTree {
             return arr;
         }
 
+        // iterating on all nodes by starting from the minimum
+        // and performing getSuccessor after each iteration
         AVLNode currNode = this.min;
         for (int i = 0; currNode != null; i++) {
             arr[i] = currNode.getValue();
@@ -482,7 +513,7 @@ public class AVLTree {
      * Returns the number of nodes in the tree.
      */
     public int size() {
-        return this.size; // to be replaced by student code
+        return this.size;
     }
 
     /**
@@ -507,6 +538,8 @@ public class AVLTree {
         boolean result = false;
         AVLNode curr = this.getRoot();
 
+        // On each node on the path from the root to the given node,
+        // take into account values of the nodes with keys lower than k
         while (curr.isRealNode()){
             if (curr.getKey()==k) { //key found
                 return result ^ curr.getLeft().getAllXor() ^ curr.getValue();
@@ -521,7 +554,6 @@ public class AVLTree {
         }
 
         // should not get here
-        System.out.println("Used allXor with a key that is not in the tree!!!");  // ************* remove me **************
         return false;
     }
 
@@ -615,7 +647,8 @@ public class AVLTree {
             this.left = node;
         }
 
-        //returns left child (if there is no left child return null)
+        //returns left child
+        //if called for virtual node, return value is ignored.
         public AVLNode getLeft() {
             return this.left;
         }
@@ -625,7 +658,8 @@ public class AVLTree {
             this.right = node;
         }
 
-        //returns right child (if there is no right child return null)
+        //returns right child
+        //if called for virtual node, return value is ignored.
         public AVLNode getRight() {
             return this.right;
         }
@@ -658,37 +692,37 @@ public class AVLTree {
             return this.height;
         }
 	
-	//Returns the balance factor of the node
+	    //Returns the balance factor of the node
         public int getBF(){
             return this.left.getHeight() - this.right.getHeight();
-        } //change to private!!!!!!!
+        }
 	
-	//Returns the node's successor
+	    //Returns the node's successor
         public AVLNode getSuccessor(){ // change to private!!!!!!!
             return this.successor;
         }
 
-	//Sets node's successor    
+	    //Sets node's successor
         private void setSuccessor(AVLNode successor){
             this.successor = successor;
         }
 
-	//Returns node's predecessor
+	    //Returns node's predecessor
         public AVLNode getPredecessor(){ // change to private!!!!!!!!
             return this.predecessor;
         }
 
-	//Sets node's predecessor
+	    //Sets node's predecessor
         private void setPredecessor(AVLNode predecessor){
             this.predecessor = predecessor;
         }
-	
-	//Returns xor value of the node's subtree
+
+	    //Returns xor value of the node's subtree
         public boolean getAllXor() { // change to private!!!!!!!
             return this.allXor;
         }
 	
-	//Sets xor value of the node's subtree
+	    //Sets xor value of the node's subtree
         private void setAllXor(boolean allXor) {
             this.allXor = allXor;
         }
