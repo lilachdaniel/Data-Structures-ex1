@@ -11,6 +11,7 @@
  */
 
 public class AVLTree {
+    private AVLNode virtualNode;
     private AVLNode root;
     public AVLNode min; //change to private!!!
     public AVLNode max; //change to private!!!
@@ -20,7 +21,8 @@ public class AVLTree {
      * This constructor creates an empty AVLTree.
      */
     public AVLTree(){
-        this.root = new AVLNode();
+        this.virtualNode = new AVLNode(-1, false, -1, null, null, false, null, null, null);
+        this.root = virtualNode;
         this.min = root;
         this.max = root;
         this.size = 0;
@@ -70,7 +72,7 @@ public class AVLTree {
     public int insert(int k, boolean i) {
         //if the tree is empty
         if (this.empty()){
-            this.root = new AVLNode(k, i, 0, null, null, i, new AVLNode(), new AVLNode(), null);
+            this.root = new AVLNode(k, i, 0, null, null, i, this.virtualNode, this.virtualNode, null);
             this.min = root;
             this.max = root;
             this.size = 1;
@@ -82,11 +84,12 @@ public class AVLTree {
         if (prev.getKey() == k){ //key already exists
             return -1;
         }
-        AVLNode curr = k > prev.getKey() ? prev.getRight() : prev.getLeft();
+
+        //AVLNode curr = k > prev.getKey() ? prev.getRight() : prev.getLeft(); / ***********  delete later
 
         //insert new node
-        AVLNode newNode= new AVLNode(k,i,0,null,null,i,new AVLNode(), new AVLNode(),prev);
-        if (prev.getLeft() == curr){
+        AVLNode newNode= new AVLNode(k,i,0,null,null,i,this.virtualNode, this.virtualNode,prev);
+        if (prev.getKey() > k){
             prev.setLeft(newNode);
 
             updateSuccPred(prev.getPredecessor(), newNode, prev);
@@ -143,13 +146,20 @@ public class AVLTree {
     }
 
     private int rebalanceTree(AVLNode parNewNode, boolean isDelete){
+        int actionCount = 0;
+
         while (parNewNode!=null){
             //if |BF|<2, maintain height and allxor
             if (Math.abs(parNewNode.getBF())<2){
-                parNewNode.setHeight(Math.max(parNewNode.getLeft().getHeight(),parNewNode.getRight().getHeight())+1);
+                int correctHeight = Math.max(parNewNode.getLeft().getHeight(),parNewNode.getRight().getHeight())+1;
+                if (parNewNode.getHeight() != correctHeight) {
+                    parNewNode.setHeight(correctHeight);
+                    actionCount++;
+                }
                 parNewNode.setAllXor(parNewNode.getLeft().getAllXor() ^ parNewNode.getRight().getAllXor() ^ parNewNode.getValue());
             }
             else{ //|BF|=2 -> found a criminal
+                actionCount++;
                 if (parNewNode.getBF()<0){
                     if (parNewNode.getRight().getBF()<0 || (isDelete && parNewNode.getRight().getBF()==0)){
                         leftRotation(parNewNode);
@@ -170,7 +180,7 @@ public class AVLTree {
 
             parNewNode = parNewNode.getParent();
         }
-        return 42; //change!!!
+        return actionCount;
     }
 
     /**
@@ -238,7 +248,7 @@ public class AVLTree {
                 newChild = toDelete.getRight();
             }
             else { // is leaf
-                newChild = new AVLNode();
+                newChild = this.virtualNode;
             }
 
             // link newChild to toDelete's parent , or update root if toDelete is root
@@ -333,7 +343,9 @@ public class AVLTree {
         //connecting the criminal to its new children
         crim.setParent(crimR);
         crim.setRight(crimR.getLeft());
-        crimR.getLeft().setParent(crim);
+        if (crimR.getLeft().isRealNode()) {
+            crimR.getLeft().setParent(crim);
+        }
         crimR.setLeft(crim);
 
         // maintaining the height of the criminal and its parent
@@ -372,7 +384,9 @@ public class AVLTree {
         //connecting the criminal to its new children
         crim.setParent(crimL);
         crim.setLeft(crimL.getRight());
-        crimL.getRight().setParent(crim);
+        if (crimL.getRight().isRealNode()) {
+            crimL.getRight().setParent(crim);
+        }
         crimL.setRight(crim);
 
         // maintaining height of criminal and its parent
@@ -583,11 +597,6 @@ public class AVLTree {
             this.parent = parent;
         }
 
-        private AVLNode(){
-            this.key = -1;
-            this.height = -1;
-        }
-
         //returns node's key (for virtual node return -1)
         public int getKey() {
             return this.key;
@@ -608,9 +617,6 @@ public class AVLTree {
 
         //returns left child (if there is no left child return null)
         public AVLNode getLeft() {
-//            if (!this.left.isRealNode()){
-//                return null;
-//            }
             return this.left;
         }
 
@@ -621,9 +627,6 @@ public class AVLTree {
 
         //returns right child (if there is no right child return null)
         public AVLNode getRight() {
-//            if (!this.right.isRealNode()){
-//                return null;
-//            }
             return this.right;
         }
 

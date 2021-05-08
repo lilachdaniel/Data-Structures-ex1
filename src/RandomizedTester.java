@@ -43,6 +43,8 @@ public class RandomizedTester {
                     actions += "deleted " + key + "\n";
                 }
 
+                actions += "";
+
             }
 
             int[] keysArr = new int[keysList.size()];
@@ -162,6 +164,7 @@ public class RandomizedTester {
         while (root.getLeft().isRealNode()){
             root = root.getLeft();
         }
+
         return root == tree.min;
     }
 

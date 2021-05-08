@@ -132,6 +132,12 @@ public class Tester {
 //        tree5.delete(1);
 //        System.out.println(RandomizedTester.checkParents(tree5));
 
+
+        AVLTree tree10 = new AVLTree();
+        tree10.insert(1, false);
+        tree10.insert(0, false);
+        tree10.delete(0);
+        tree10.insert(2, false);
     }
     public static void display(AVLTree tree) {
         final int height = 4, width = 64;
