@@ -1,4 +1,10 @@
 /**
+ * names: Lilach Daniel, Ofir Gaash
+ * usernames: lilachdaniel, ofirgaash
+ * ids: 206377368
+ */
+
+/**
  * public class AVLNode
  * <p>
  * This class represents an AVLTree with integer keys and boolean values.
