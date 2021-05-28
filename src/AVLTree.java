@@ -333,6 +333,11 @@ public class AVLTree {
                 }
             }
 
+            // maintain toDeleteSucc's updated height
+            int newHeight = Math.max(toDeleteSucc.getLeft().getHeight(),
+                                     toDeleteSucc.getRight().getHeight()) + 1;
+            toDeleteSucc.setHeight(newHeight);
+
             // if deleted the root, update root field
             if (this.getRoot() == toDelete) {
                 this.root = toDeleteSucc;
