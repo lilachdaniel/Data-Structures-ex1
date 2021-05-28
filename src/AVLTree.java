@@ -314,6 +314,7 @@ public class AVLTree {
             toDeleteSucc.getRight().setParent(succParent);
 
 
+
             // replace toDelete with toDeleteSucc
             // link toDelete's right child with toDeleteSucc
             toDeleteSucc.setRight(toDelete.getRight());
